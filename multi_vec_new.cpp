@@ -231,53 +231,54 @@ public:
         }
     }
 
-    void searchWithPattern(vector<int> nums) {
-        for (int i : nums)
+    void searchWithPattern() {
+        for (int i = min_word_length; i <= max_word_length; i++)
         {
             for (const string& word: words[i]){
                 bool valid = true;
                 size_t currentIndex = 0;
                 
-                    for (int part_num = 0; part_num < patternParts.size(); part_num++) {
-                        auto part = patternParts[part_num];
-                        size_t foundIndex;
-                        if (part.str == ".") {
-                            if (currentIndex + part.min > i || currentIndex + part.max < i) {
-                                valid = false;
-                                break;
-                            } else {
-                                break;
-                            }
-                        } else if (part.str == "-") {
-                            bool charFound = false;
-                            for (size_t j = currentIndex + part.min; j <= currentIndex + part.max && j < i; ++j) {
-                                if (find(part.letters.begin(), part.letters.end(), word[j]) != part.letters.end()) {
-                                    charFound = true;
-                                    currentIndex = j + 1;
-                                    break;
-                                }
-                            }
-                            if (!charFound) {
-                                if(part.min < part.max)
-                                valid = false;
-                                break;
-                            }
+                for (const auto& part : patternParts) {
+                    if(currentIndex > 1){
+                        // cout << "CURRENT INDEX: " << currentIndex << endl;
+                    }
+                    size_t foundIndex;
+                    if (part.str == ".") {
+                        if (currentIndex + part.min > i || currentIndex + part.max < i) {
+                            // cout << "SDFKJLSFKJSDFKLSDFLKJ " << currentIndex << " " << part.min << " " << part.max << ": " << i << endl;
+                            valid = false;
+                            break;
                         } else {
-                            foundIndex = kmpSearch(word.substr(currentIndex + part.min, part.max - part.min + part.str.size()), part.str);
-                            if (foundIndex == string::npos) {
-                                valid = false;
+                            break;
+                        }
+                    } else if (part.str == "-") {
+                        bool charFound = false;
+                        for (size_t j = currentIndex + part.min; j <= currentIndex + part.max && j < i; ++j) {
+                            if (find(part.letters.begin(), part.letters.end(), word[j]) != part.letters.end()) {
+                                charFound = true;
+                                currentIndex = j + 1; //change index here after finding a char in {abcd}
                                 break;
-                            } else {
-                                currentIndex += part.min + foundIndex + part.str.size();
                             }
                         }
-                    }
-                    if (valid) {
-                        matches_vec[i].push_back(word);
+                        if (!charFound) {
+                            valid = false;
+                            break;
+                        }
                     } else {
-
+                        foundIndex = kmpSearch(word.substr(currentIndex + part.min, part.max - part.min + part.str.size()), part.str); //currentIndex + part.min, currentIndex + part.max
+                        // cout << "PART STR " << part.str << "WORD SUBSTR " << word.substr(currentIndex + part.min, currentIndex + part.max + part.str.size() - 1) << " " << part.str.size() << endl;
+                        if (foundIndex == string::npos) {
+                            valid = false;
+                            break;
+                        } else {
+                            currentIndex += part.min + foundIndex + part.str.size();
+                        }
                     }
                 }
+                if (valid) {
+                    cout << word << endl;
+                }
+            }
         }
     }
 
@@ -376,21 +377,22 @@ int main(int argc, char* argv[]) {
     }
     // START SEARCH TIMER AFTER PATTERN HAS BEEN READ AND DICTIONARY POPULATED
     auto start = high_resolution_clock::now();
-    vector<thread> threads;
-    int thread_count = 4;
-    int vectors_per_thread = (dict.max_word_length - dict.min_word_length) / thread_count;
-    for (int i = 0; i < thread_count; ++i) {
-        vector<int> nums;
-        for(int j = dict.min_word_length + i; j <= dict.max_word_length; j += thread_count){
-            nums.push_back(j);
-        }
-        threads.push_back(thread(&Dictionary::searchWithPattern, ref(dict), nums));
-    }
-    for (thread &t : threads) {
-        if (t.joinable()) {
-            t.join();
-        }
-    }
+    // vector<thread> threads;
+    // int thread_count = 4;
+    // int vectors_per_thread = (dict.max_word_length - dict.min_word_length) / thread_count;
+    // for (int i = 0; i < thread_count; ++i) {
+    //     vector<int> nums;
+    //     for(int j = dict.min_word_length + i; j <= dict.max_word_length; j += thread_count){
+    //         nums.push_back(j);
+    //     }
+    //     threads.push_back(thread(&Dictionary::searchWithPattern, ref(dict), nums));
+    // }
+    // for (thread &t : threads) {
+    //     if (t.joinable()) {
+    //         t.join();
+    //     }
+    // }
+    dict.searchWithPattern();
     
     // STOP SEARCH TIMER BEFORE MERGING LISTS AND PRINTING
     auto stop = high_resolution_clock::now();

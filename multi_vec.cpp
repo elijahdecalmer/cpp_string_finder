@@ -147,78 +147,78 @@ public:
     }
 
 
-    // void createPatternPerms(){
-    //     map<int, pair<int, int>> ranges;
-    //     vector<int> j_vals;
-    //     int num_perms = 1;
-    //     for (int j = 0; j < patternParts.size(); j++)
-    //     {
-    //         auto part = patternParts[j];
-    //         if(part.max != part.min){
-    //             ranges[j] = make_pair(part.min, part.max);
-    //             // cout << j << " PAIR " << part.min << " " << part.max << endl;
-    //             num_perms = num_perms * (part.max - part.min + 1);
-    //             j_vals.push_back(j);
-    //         }
-    //     }
+    void createPatternPerms(){
+        map<int, pair<int, int>> ranges;
+        vector<int> j_vals;
+        int num_perms = 1;
+        for (int j = 0; j < patternParts.size(); j++)
+        {
+            auto part = patternParts[j];
+            if(part.max != part.min){
+                ranges[j] = make_pair(part.min, part.max);
+                // cout << j << " PAIR " << part.min << " " << part.max << endl;
+                num_perms = num_perms * (part.max - part.min + 1);
+                j_vals.push_back(j);
+            }
+        }
 
-    //     for (int i = 0; i < num_perms; i++)
-    //     {
-    //         if (i != 0){
-    //             for (int k = j_vals.size(); k >= 0; k--){
-    //                 if (ranges[k].first != ranges[k].second){
-    //                     ranges[k].first += 1;
-    //                     break;
-    //                 }else{
-    //                     ranges[k].first = patternParts[k].min;
-    //                 }
+        for (int i = 0; i < num_perms; i++)
+        {
+            if (i != 0){
+                for (int k = j_vals.size(); k >= 0; k--){
+                    if (ranges[k].first != ranges[k].second){
+                        ranges[k].first += 1;
+                        break;
+                    }else{
+                        ranges[k].first = patternParts[k].min;
+                    }
                     
-    //             }
-    //         }
+                }
+            }
 
 
-    //         PatternPerm pat_p;
-    //         pat_p.length = 0;
-    //         for (int j = 0; j < patternParts.size(); j++)
-    //         {
-    //             auto part = patternParts[j];
-    //             if(part.max != part.min){
-    //                 part.max = ranges[j].first;
-    //                 part.min = part.max;
-    //                 pat_p.patternParts.push_back(part);
-    //             }else{
-    //                 pat_p.patternParts.push_back(part);
-    //             }
-    //         }
+            PatternPerm pat_p;
+            pat_p.length = 0;
+            for (int j = 0; j < patternParts.size(); j++)
+            {
+                auto part = patternParts[j];
+                if(part.max != part.min){
+                    part.max = ranges[j].first;
+                    part.min = part.max;
+                    pat_p.patternParts.push_back(part);
+                }else{
+                    pat_p.patternParts.push_back(part);
+                }
+            }
 
-    //         for(PatternPart part : pat_p.patternParts){
-    //             pat_p.length += part.min;
-    //             if (part.str == "-"){
-    //                 pat_p.length += 1;
-    //             } else if(part.str != ".") {
-    //                 pat_p.length += part.str.size();
-    //             }
-    //         }
+            for(PatternPart part : pat_p.patternParts){
+                pat_p.length += part.min;
+                if (part.str == "-"){
+                    pat_p.length += 1;
+                } else if(part.str != ".") {
+                    pat_p.length += part.str.size();
+                }
+            }
             
-    //         patternPerms.push_back(pat_p);
+            patternPerms.push_back(pat_p);
             
             
-    //     }
+        }
 
-    //     for (auto i : patternPerms){
-    //         cout << "LENGTH: " << i.length << " patterns: " << endl;
-    //         for(auto j : i.patternParts){
-    //             cout << "str: " << j.str << " letters: ";
-    //             for(auto k : j.letters){
-    //                 cout << k;
-    //             }
-    //             cout << " min: " << j.min << " max: " << j.max << endl;
-    //         }
+        for (auto i : patternPerms){
+            cout << "LENGTH: " << i.length << " patterns: " << endl;
+            for(auto j : i.patternParts){
+                cout << "str: " << j.str << " letters: ";
+                for(auto k : j.letters){
+                    cout << k;
+                }
+                cout << " min: " << j.min << " max: " << j.max << endl;
+            }
 
-    //     }
+        }
         
         
-    // }
+    }
 
     void printResults(){
         for(list<string> l : matches_vec){
@@ -242,42 +242,41 @@ public:
                         auto part = patternParts[part_num];
                         size_t foundIndex;
                         if (part.str == ".") {
-                            if (currentIndex + part.min > i || currentIndex + part.max < i) {
-                                valid = false;
-                                break;
-                            } else {
-                                break;
-                            }
-                        } else if (part.str == "-") {
-                            bool charFound = false;
-                            for (size_t j = currentIndex + part.min; j <= currentIndex + part.max && j < i; ++j) {
-                                if (find(part.letters.begin(), part.letters.end(), word[j]) != part.letters.end()) {
-                                    charFound = true;
-                                    currentIndex = j + 1;
-                                    break;
-                                }
-                            }
-                            if (!charFound) {
-                                if(part.min < part.max)
-                                valid = false;
-                                break;
-                            }
+                        if (currentIndex + part.min > i || currentIndex + part.max < i) {
+                            // cout << "SDFKJLSFKJSDFKLSDFLKJ " << currentIndex << " " << part.min << " " << part.max << ": " << i << endl;
+                            valid = false;
+                            break;
                         } else {
-                            foundIndex = kmpSearch(word.substr(currentIndex + part.min, part.max - part.min + part.str.size()), part.str);
-                            if (foundIndex == string::npos) {
-                                valid = false;
+                            break;
+                        }
+                    } else if (part.str == "-") {
+                        bool charFound = false;
+                        for (size_t j = currentIndex + part.min; j <= currentIndex + part.max && j < i; ++j) {
+                            if (find(part.letters.begin(), part.letters.end(), word[j]) != part.letters.end()) {
+                                charFound = true;
+                                currentIndex = j + 1; //change index here after finding a char in {abcd}
                                 break;
-                            } else {
-                                currentIndex += part.min + foundIndex + part.str.size();
                             }
                         }
-                    }
-                    if (valid) {
-                        matches_vec[i].push_back(word);
+                        if (!charFound) {
+                            valid = false;
+                            break;
+                        }
                     } else {
-
+                        foundIndex = kmpSearch(word.substr(currentIndex + part.min, part.max - part.min + part.str.size()), part.str); //currentIndex + part.min, currentIndex + part.max
+                        // cout << "PART STR " << part.str << "WORD SUBSTR " << word.substr(currentIndex + part.min, currentIndex + part.max + part.str.size() - 1) << " " << part.str.size() << endl;
+                        if (foundIndex == string::npos) {
+                            valid = false;
+                            break;
+                        } else {
+                            currentIndex += part.min + foundIndex + part.str.size();
+                        }
                     }
                 }
+                if (valid) {
+                    cout << word << endl;
+                }
+            }
         }
     }
 
@@ -369,10 +368,10 @@ int main(int argc, char* argv[]) {
     dict.interpretPattern();
     dict.printPattern();
 
-    //dict.createPatternPerms();
+    dict.createPatternPerms();
 
     if (wordLength > 0){
-        // dict.setWordLength(wordLength);
+        dict.setWordLength(wordLength);
     }
     // START SEARCH TIMER AFTER PATTERN HAS BEEN READ AND DICTIONARY POPULATED
     auto start = high_resolution_clock::now();
